@@ -20,7 +20,8 @@ public class Llamada {
 		Runtime run = Runtime.getRuntime();
 		Process p = null;
 		try {
-			p = run.exec("cmd /c start /wait java -cp bin ejercicio1.Division");
+//			p = run.exec("cmd /c start /wait java -cp bin ejercicio1.Division");
+			p = run.exec("bash -c java -cp bin ejercicio1.Division");
 			p.waitFor();
 			System.out.println("aqui");
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
