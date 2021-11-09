@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import teclado.Teclado;
 
 /*Crea un programa en Java en el package "ejercicio1" que lea de teclado dos números y 
  * muestre por la salida estándar la división del primero entre el segundo. El programa 
@@ -17,26 +19,25 @@ import java.io.InputStreamReader;
 public class Llamada {
 
 	public static void main(String[] args) {
+		Teclado teclado = new Teclado();
 		Runtime run = Runtime.getRuntime();
 		Process p = null;
 		try {
-//			p = run.exec("cmd /c start /wait java -cp bin ejercicio1.Division");
-			p = run.exec("bash -c java -cp bin ejercicio1.Division");
-			p.waitFor();
-			System.out.println("aqui");
+			p = run.exec("java -cp bin ejercicio1.Division");
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
+			bw.write(String.valueOf(teclado.solicitarRealEnDoblePrecision("Introduce dividendo. ")));
+			bw.newLine();
+			bw.write(String.valueOf(teclado.solicitarRealEnDoblePrecision("Introduce divisor. ")));
+			bw.flush();
+			bw.close();
+			
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedWriter bw = new BufferedWriter(new FileWriter("salida.txt"));
 			String linea;
 			while ((linea = br.readLine()) != null) {
 				System.out.println(linea);
-				bw.write(linea);
 			}
 			br.close();
-		} 
-		catch (InterruptedException ie) {
-			ie.printStackTrace();
-		} 
-		catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
@@ -50,5 +51,16 @@ public class Llamada {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		int valorSalida;
+		
+		try {
+			valorSalida = p.waitFor();
+			System.out.println("Valor de Salida: " + valorSalida);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} 
+		
 	}
+
 }
