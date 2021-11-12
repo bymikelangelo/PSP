@@ -2,11 +2,9 @@ package ejercicio1;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import teclado.Teclado;
 
 /*Crea un programa en Java en el package "ejercicio1" que lea de teclado dos números y 
  * muestre por la salida estándar la división del primero entre el segundo. El programa 
@@ -19,15 +17,18 @@ import teclado.Teclado;
 public class Llamada {
 
 	public static void main(String[] args) {
-		Teclado teclado = new Teclado();
 		Runtime run = Runtime.getRuntime();
 		Process p = null;
 		try {
 			p = run.exec("java -cp bin ejercicio1.Division");
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
-			bw.write(String.valueOf(teclado.solicitarRealEnDoblePrecision("Introduce dividendo. ")));
+			BufferedReader teclado = new BufferedReader(new InputStreamReader(System.in));
+			System.out.print("Introduce dividiendo. ");
+			bw.write(teclado.readLine());
 			bw.newLine();
-			bw.write(String.valueOf(teclado.solicitarRealEnDoblePrecision("Introduce divisor. ")));
+			System.out.print("Introduce divisor. ");
+			bw.write(teclado.readLine());
+			teclado.close();
 			bw.flush();
 			bw.close();
 			
@@ -53,7 +54,6 @@ public class Llamada {
 		}
 		
 		int valorSalida;
-		
 		try {
 			valorSalida = p.waitFor();
 			System.out.println("Valor de Salida: " + valorSalida);
