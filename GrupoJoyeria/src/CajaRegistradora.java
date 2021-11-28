@@ -13,6 +13,7 @@ public class CajaRegistradora {
 	
 	public synchronized void sumarVenta(int cantidad) {
 		this.dineroTotal = this.dineroTotal + cantidad;
+		System.out.println("\nSe ha sumado la cantidad de: " + cantidad + ". TOTAL = " + dineroTotal + "\n");
 	}
 	
 }
