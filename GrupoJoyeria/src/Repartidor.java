@@ -10,11 +10,13 @@ public class Repartidor {
 
 	private Vendedor[] vendedores;
 	private LinkedList<Cliente> clientes;
+	private int enActivo;
 	
 	public Repartidor(Vendedor[] vendedores, LinkedList<Cliente> clientes) {
 		super();
 		this.vendedores = vendedores;
 		this.clientes = clientes;
+		this.enActivo = 0;
 	}
 	
 	/**
@@ -34,13 +36,30 @@ public class Repartidor {
 					cliente.setSiendoAtendido(true);
 					tempVendedor.setEnEspera(false);
 					tempVendedor.setCliente(cliente);
-					if (tempVendedor.isAlive() == false) {
-						tempVendedor.start();
-					}
+//					if (tempVendedor.isAlive() == false) {
+//						tempVendedor.start();
+//					}
 				}
 			}
 		}
-	}	
+		iniciar();  //se inician los Vendedores una vez terminado el reparto
+	}
+	
+	/**
+	 * el método inicia los Vendedores asignados por el método repartir y que no han sido activados
+	 * (enEspera = false y isAlive = false).
+	 * Si todos los Vendedores disponibles han sido iniciados, no recorre el bucle.
+	 */
+	public void iniciar() {
+		if (enActivo != vendedores.length) {
+			for (int i = 0; i < vendedores.length; i++) {
+				if (vendedores[i].isAlive() == false & vendedores[i].isEnEspera() == false) {
+					vendedores[i].start();
+					enActivo++;
+				}
+			}
+		}
+	}
 	
 	/**
 	 * Se encarga de recorrer el array de Vendedores en busca de uno "libre".
