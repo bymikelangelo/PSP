@@ -12,17 +12,14 @@ public class Cliente {
 		this.siendoAtendido = false;
 		this.atendido = false;
 	}
-
 	
 	public String getNombre() {
 		return nombre;
 	}
 
-
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-
 
 	public Joya getJoya() {
 		return joya;
@@ -31,7 +28,6 @@ public class Cliente {
 	public void setJoya(Joya joya) {
 		this.joya = joya;
 	}
-
 	
 	public boolean isSiendoAtendido() {
 		return siendoAtendido;
