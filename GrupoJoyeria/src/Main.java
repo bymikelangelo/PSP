@@ -27,6 +27,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		long inicio = System.currentTimeMillis();
 		
 		CajaRegistradora caja = new CajaRegistradora();
 		Contador contador = new Contador();
@@ -50,27 +51,26 @@ public class Main {
 		joyas[4] = new Joya("Anillo de Oro", 1);
 		//fin del listado de joyas
 		
-		LinkedList<Cliente> clientes = new LinkedList();
-		
 		System.out.println("BIENVENIDO A NUESTRA JOYERÍA!!!");
-		int numVendedores = teclado.solicitarEnteroPositivo("¿Cuántos vendedores atienden al público...?" );
+		int numVendedores = teclado.solicitarEnteroPositivo("¿Cuántos vendedores atienden al público...? ");
 		int numClientes = teclado.solicitarEnteroPositivo("y... ¿cuántos clientes hay esperando...? ");
 		
-		int numeracion;
 		//se origina array de Clientes con datos aleatorios
+		LinkedList<Cliente> clientes = new LinkedList();
+		int numeracion;
 		for (int i = 0; i < numClientes; i++) {
 			numeracion = i + 1;
 			clientes.add(new Cliente("CLIENTE " + numeracion, joyas[random.nextInt(joyas.length)]));
 		}
 		
-		Vendedor[] vendedores = new Vendedor[numVendedores];
 		//se origina lista de Vendedores
+		Vendedor[] vendedores = new Vendedor[numVendedores];
 		for (int i = 0; i < numVendedores; i++) {
 			numeracion = i + 1;
 			vendedores[i] = new Vendedor("VENDEDOR " + numeracion, caja, clientes, contador);
 		}
 		
-		Repartidor repartidor = new Repartidor(vendedores, clientes, contador);
+		Repartidor repartidor = new Repartidor(vendedores, clientes);
 		//cuando se acaban de repartir todos los clientes salta el mensaje.
 		if (repartidor.comprobarRepartidos()) {
 			System.out.println("\nSE HA COMPLETADO EL REPARTO DE CLIENTES\n");
@@ -98,8 +98,10 @@ public class Main {
 			}
 		}
 		
+		long fin = System.currentTimeMillis();
 		System.out.println("\nTerminada la jornada de ventas. TOTAL RECAUDADO = " + caja.dineroTotal + "\n");
-		System.out.println("TIEMPO TOTAL INVERTIDO = " + contador.getTiempoTotal() + " ms\n");
+		System.out.println("TIEMPO TOTAL DE TODOS LOS HILOS = " + contador.getTiempoTotal() + " ms\n");
+		System.out.println("TIEMPO DE EJECUCIÓN DEL PROGRAMA = " + (fin - inicio) + " ms\n" );
 	}
 	
 }

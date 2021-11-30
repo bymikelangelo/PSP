@@ -6,7 +6,7 @@ import java.util.LinkedList;
  * 
  * Recibe la caja registradora desde Main. Llama al método sincronizado sumarVenta() para sumar 
  * el precio de la joya de cada cliente al total de la caja registradora. 
- * @author mikelangelo
+ * @author Mikelangelo
  *
  */
 public class Vendedor extends Thread {
@@ -35,9 +35,10 @@ public class Vendedor extends Thread {
 	 * Cuando todos los clientes han sido atendidos (clientes.size = 0) el Vendedor finaliza.
 	 */
 	public void run() {
-		long inicio = System.currentTimeMillis();
+		long total = 0;
 		while (clientes.size() != 0) {
 			if (cliente != null) {
+				long inicio = System.currentTimeMillis();
 				System.out.println(super.getName() + " --> estoy atendiento a " + cliente.getNombre());
 				caja.sumarVenta(cliente.getJoya().getPrecio());
 				System.out.println(super.getName() + " --> " + cliente.getNombre() + " a comprado " + cliente.getJoya().getNombre() + " --> " + cliente.getJoya().getPrecio());
@@ -45,6 +46,8 @@ public class Vendedor extends Thread {
 				setCliente(null);
 				System.out.println(super.getName() + " --> VENTA FINALIZADA. Me quedo a la espera de un nuevo cliente. ");
 				enEspera = true;
+				long fin = System.currentTimeMillis();
+				total = total + (fin - inicio);
 				try {
 					sleep(500);
 				} catch (InterruptedException e) {
@@ -52,8 +55,7 @@ public class Vendedor extends Thread {
 				}
 			}
 		}
-		long fin = System.currentTimeMillis();
-		long total = fin - inicio;
+		
 		contador.sumarTiempo(total);
 		System.out.println(super.getName() + " --> mi trabajo ha finalizado. TIEMPO EMPLEADO: " + total + " ms");
 	}

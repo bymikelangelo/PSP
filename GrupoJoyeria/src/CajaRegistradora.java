@@ -1,4 +1,9 @@
 
+/**
+ * Clase que almacena la cantidad total recaudada por las diferentes ventas.
+ * @author Mikelangelo
+ *
+ */
 public class CajaRegistradora {
 
 	int dineroTotal;
@@ -7,6 +12,7 @@ public class CajaRegistradora {
 		return dineroTotal;
 	}
 
+	//método sincronizado para evitar perdida en las sumas establecidas por los distintos hilos
 	public synchronized void setDineroTotal(int dineroTotal) {
 		this.dineroTotal = dineroTotal;
 	}

@@ -10,14 +10,12 @@ public class Repartidor {
 
 	private Vendedor[] vendedores;
 	private LinkedList<Cliente> clientes;
-	private Contador contador;
 	private int enActivo;
 	
-	public Repartidor(Vendedor[] vendedores, LinkedList<Cliente> clientes, Contador contador) {
+	public Repartidor(Vendedor[] vendedores, LinkedList<Cliente> clientes) {
 		super();
 		this.vendedores = vendedores;
 		this.clientes = clientes;
-		this.contador = contador;
 		this.enActivo = 0;
 	}
 	
@@ -55,17 +53,17 @@ public class Repartidor {
 	 * lo inicia con el método start().
 	 */
 	public void repartir() {
-		Vendedor tempVendedor;
+		Vendedor vendedor;
 		for (Cliente cliente: clientes) {
 			if (cliente.isSiendoAtendido() == false) {
-				tempVendedor = dameVendedor();
-				if (tempVendedor != null) {
-					System.out.println("Asignando a " + tempVendedor.getName() + " --> " + cliente.getNombre());
+				vendedor = dameVendedor();
+				if (vendedor != null) {
+					System.out.println("Asignando a " + vendedor.getName() + " --> " + cliente.getNombre());
 					//las variables siendoAtendido y enEspera de Cliente y Vendedor deben establecerse aquí
 					//para evitar que un nuevo ciclo del bucle asocie un Cliente atendido a un Vendedor.
 					cliente.setSiendoAtendido(true);
-					tempVendedor.setEnEspera(false);
-					tempVendedor.setCliente(cliente);
+					vendedor.setEnEspera(false);
+					vendedor.setCliente(cliente);
 //					if (tempVendedor.isAlive() == false) {
 //						tempVendedor.start();
 //					}
@@ -98,13 +96,13 @@ public class Repartidor {
 	 * @return
 	 */
 	public Vendedor dameVendedor() {
-		Vendedor tempVendedor = null;
+		Vendedor vendedor = null;
 		for (int i = 0; i < this.vendedores.length; i++) {
 			if (vendedores[i].isEnEspera() == true) {
-				tempVendedor = vendedores[i];
+				vendedor = vendedores[i];
 			}
 		}
-		return tempVendedor;
+		return vendedor;
 	}
 
 }
