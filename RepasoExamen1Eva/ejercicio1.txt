@@ -1,41 +1,3 @@
- [ + ]  acpid
- [ - ]  alsa-utils
- [ + ]  apparmor
- [ + ]  apport
- [ + ]  avahi-daemon
- [ + ]  bluetooth
- [ - ]  console-setup.sh
- [ + ]  cron
- [ - ]  cryptdisks
- [ - ]  cryptdisks-early
- [ + ]  cups
- [ + ]  cups-browsed
- [ + ]  dbus
- [ + ]  gdm3
- [ - ]  hwclock.sh
- [ + ]  irqbalance
- [ - ]  keyboard-setup.sh
- [ + ]  kmod
- [ - ]  lvm2
- [ - ]  lvm2-lvmpolld
- [ + ]  networking
- [ + ]  nmbd
- [ - ]  plymouth
- [ + ]  plymouth-log
- [ - ]  pppd-dns
- [ + ]  procps
- [ - ]  pulseaudio-enable-autospawn
- [ + ]  resolvconf
- [ - ]  rsync
- [ + ]  rsyslog
- [ - ]  samba-ad-dc
- [ - ]  saned
- [ + ]  smbd
- [ - ]  speech-dispatcher
- [ + ]  udev
- [ + ]  ufw
- [ - ]  uuidd
- [ - ]  x11-common
 Se han iniciado estos servicios de Windows:
 
    Acceso a datos de usuarios_b06b9c9
@@ -105,7 +67,6 @@ Se han iniciado estos servicios de Windows:
    Programador de tareas
    Reconoc. ubicaci¢n de red
    Registro de eventos de Windows
-   Servicio Administrador de funcionalidad de acceso
    Servicio Asistente para la compatibilidad de programas
    Servicio AVCTP
    Servicio biom‚trico de Windows
@@ -120,7 +81,6 @@ Se han iniciado estos servicios de Windows:
    Servicio de directivas de diagn¢stico
    Servicio de dispositivo de interfaz humana
    Servicio de geolocalizaci¢n
-   Servicio de implementaci¢n de AppX (AppXSVC)
    Servicio de infraestructura de tareas en segundo plano
    Servicio de instalaci¢n de dispositivos
    Servicio de instalaci¢n de Microsoft Store
