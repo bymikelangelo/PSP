@@ -1,5 +1,6 @@
 package servidor;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -34,25 +35,35 @@ public class HiloServidor extends Thread{
 	}
 
 	public void run() {
+		String nick = "";
+		String ip = "";
 		try {
 			out = new ObjectOutputStream(socketCliente.getOutputStream());
 			in = new ObjectInputStream(socketCliente.getInputStream());
 			
 			PaqueteEnvio paqueteRecibido = leerMensaje();
+			nick = paqueteRecibido.getNick();
+			ip = paqueteRecibido.getIp();
 			
 			gestor.anyadirCliente(paqueteRecibido.getNick(), this);
 			
-			notificarMensaje("Entra en la sala de chat: " + paqueteRecibido.getNick()
-			+ "(" + paqueteRecibido.getIp() + ")");
+			notificarMensaje("Entra en la sala de chat: " + nick
+			+ "(" + ip + ")");
 			
 			while(true) {
 				paqueteRecibido = leerMensaje();
-				System.out.println(paqueteRecibido.getMensaje());
-				gestor.enviarMensaje(paqueteRecibido);
+				System.out.println(paqueteRecibido);
+				if (paqueteRecibido != null) {
+					System.out.println(paqueteRecibido.getMensaje());
+					gestor.enviarMensaje(paqueteRecibido);
+				}
 			}
 			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+		} catch (EOFException e) {
+			e.printStackTrace();
+			System.err.println("Ha salido de la sala de chat: " + nick + "(" + ip + ")");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

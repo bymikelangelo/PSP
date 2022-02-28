@@ -57,7 +57,7 @@ public class Servidor implements Runnable{
 
 		}
 		
-		System.out.println("Max clientes conectados");
+		System.out.println("Máximo de conexiones alcanzado.");
 		
 	}	
 	

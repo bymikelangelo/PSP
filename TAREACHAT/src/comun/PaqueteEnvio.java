@@ -44,5 +44,10 @@ public class PaqueteEnvio implements Serializable {
 	public void setMensaje(String mensaje) {
 		this.mensaje = mensaje;
 	}
+
+	@Override
+	public String toString() {
+		return "PaqueteEnvio [nick=" + nick + ", ip=" + ip + ", mensaje=" + mensaje + "]";
+	}
 	
 }
