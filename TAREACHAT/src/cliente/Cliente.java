@@ -15,7 +15,7 @@ import teclado.Teclado;
 
 public class Cliente implements Runnable{
 	
-	private final String PROPERTIES_FILE = "src/config/propertiesClient";
+	private final String PROPERTIES_FILE = "src/config/propiedades";
 	private int puerto;
 	private String host;
 	private String nick;

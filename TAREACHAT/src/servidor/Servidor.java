@@ -12,7 +12,7 @@ import javax.net.ssl.SSLSocket;
 
 public class Servidor implements Runnable{
 	
-	private final String PROPERTIES_FILE = "src/config/propertiesServer";
+	private final String PROPERTIES_FILE = "src/config/propiedades";
 	private int puerto;
 	private String host;
 	private int maximoClientes;
