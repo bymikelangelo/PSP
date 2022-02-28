@@ -6,12 +6,13 @@ import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Properties;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import comun.GestorMensajes;
+import comun.ArchivadorMensajes;
 import teclado.Teclado;
 
 public class Cliente {
@@ -21,6 +22,8 @@ public class Cliente {
 	private String host;
 	private boolean conectado;
 	private SSLSocket socket;
+	private DataOutputStream out;
+	private DataInputStream in;
 	
 	public Cliente () throws FileNotFoundException, IOException {
 		Properties propiedades = new Properties();
@@ -28,10 +31,15 @@ public class Cliente {
 		host = propiedades.getProperty("host");
 		puerto = Integer.valueOf(propiedades.getProperty("puerto"));
 		
+		System.setProperty("javax.net.ssl.trustStore", "src/almacen/usuarioMPF");
+		System.setProperty("javax.net.ssl.trustStorePassword", "123456");
+		
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		SSLSocket cliente = (SSLSocket) factory.createSocket(host, puerto);
+		
+		out = new DataOutputStream(socket.getOutputStream());
+		in = new DataInputStream(socket.getInputStream());
 	}
-	
 	
 	public int getPuerto() {
 		return puerto;
@@ -70,20 +78,47 @@ public class Cliente {
 	public void setSocket(SSLSocket socket) {
 		this.socket = socket;
 	}
+	
+	public DataOutputStream getOut() {
+		return out;
+	}
 
+
+	public void setOut(DataOutputStream out) {
+		this.out = out;
+	}
+
+
+	public DataInputStream getIn() {
+		return in;
+	}
+
+
+	public void setIn(DataInputStream in) {
+		this.in = in;
+	}
+
+	public void escribirMensaje(String mensaje) throws IOException {
+		out.writeUTF(mensaje);
+	}
+
+	public String leerMensaje() throws IOException {
+		return in.readUTF();
+	}
+	
+	public class PaqueteEnvio implements Serializable{
+		
+		
+	}
 
 	public static void main(String[] args) {
-		DataOutputStream out;
-		DataInputStream in;
-		
 		try {
 			Cliente cliente = new Cliente();
-			out = new DataOutputStream(cliente.getSocket().getOutputStream());
-			in = new DataInputStream(cliente.getSocket().getInputStream());
+			
 			while (cliente.getSocket().isConnected()) {
 				String mensaje = Teclado.solicitarCadena("");
 				System.out.println(mensaje);
-				out.writeUTF(mensaje);
+				cliente.escribirMensaje(mensaje);
 			}
 			
 		} catch (IOException e) {

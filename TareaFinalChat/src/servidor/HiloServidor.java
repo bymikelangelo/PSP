@@ -8,21 +8,18 @@ import java.io.OutputStreamWriter;
 
 import javax.net.ssl.SSLSocket;
 
-import comun.GestorMensajes;
+import comun.ArchivadorMensajes;
 
 public class HiloServidor extends Thread{
 	
 	private SSLSocket cliente;
-	private Servidor servidor;
 	private DataOutputStream out;
 	private DataInputStream in;
-	private GestorMensajes gestor;
+	private ArchivadorMensajes archivador;
 	
-	
-	public HiloServidor(SSLSocket cliente, Servidor servidor, GestorMensajes gestor) {
+	public HiloServidor(SSLSocket cliente, ArchivadorMensajes archivador) {
 		this.cliente = cliente;
-		this.servidor = servidor;
-		this.gestor = gestor;
+		this.archivador = archivador;
 	}
 
 	public void run() {
@@ -32,7 +29,8 @@ public class HiloServidor extends Thread{
 			
 			System.out.println("SERVIDOR --> Entra en la sala de chat: " + cliente.getInetAddress() + "/" + cliente.getPort());
 			while (cliente.isConnected()) {
-				
+				String mensaje = leerMensaje();
+				archivador.anyadirMensaje(cliente, mensaje);
 			}
 
 		} catch (IOException e) {
@@ -40,12 +38,12 @@ public class HiloServidor extends Thread{
 		}
 	}
 	
-	public String recibirMensaje() throws IOException {
+	public String leerMensaje() throws IOException {
 		return in.readUTF();
 	}
 	
-	public void imprimirMensaje() {
-		
+	public void escribirMensaje(String mensaje) throws IOException {
+		out.writeUTF(mensaje);
 	}
 	
 }
