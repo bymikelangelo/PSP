@@ -15,8 +15,9 @@ public class Servidor implements Runnable{
 	private final String PROPERTIES_FILE = "src/config/propertiesServer";
 	private int puerto;
 	private String host;
+	private int maximoClientes;
 	private Boolean escuchando;
-	private Almacenamiento almacen;
+	private GestorMensajes gestor;
 	SSLServerSocket server;
 	
 	public Servidor() throws NumberFormatException, FileNotFoundException, IOException{
@@ -24,6 +25,7 @@ public class Servidor implements Runnable{
 		propiedades.load(new BufferedReader(new FileReader(PROPERTIES_FILE)));
 		host = propiedades.getProperty("host");
 		puerto = Integer.valueOf(propiedades.getProperty("puerto"));
+		maximoClientes = Integer.valueOf(propiedades.getProperty("maximoClientes"));
 			
 		System.setProperty("javax.net.ssl.keyStore", "src/almacen/MPF");
 		System.setProperty("javax.net.ssl.keyStorePassword", "123456");
@@ -31,26 +33,31 @@ public class Servidor implements Runnable{
 		SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
 		server = (SSLServerSocket) factory.createServerSocket(puerto);
 		
-		almacen = new Almacenamiento();
+		gestor = new GestorMensajes();
 		
 	}
 	
 	@Override
 	public void run() {
 		System.out.println("Servidor iniciado");
-		while (true) {
+		int contador = 0;
+		while (contador < maximoClientes) {
 			try {
 				SSLSocket socketCliente = (SSLSocket) server.accept();
 				server.setSoTimeout(0);
 				
-				HiloServidor hilo = new HiloServidor(socketCliente, almacen);
+				HiloServidor hilo = new HiloServidor(socketCliente, gestor);
 				hilo.start();
+				
+				contador++;
 				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
 		}
+		
+		System.out.println("Max clientes conectados");
 		
 	}	
 	

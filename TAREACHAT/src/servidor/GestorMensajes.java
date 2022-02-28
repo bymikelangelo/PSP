@@ -6,11 +6,11 @@ import java.util.HashMap;
 
 import comun.PaqueteEnvio;
 
-public class Almacenamiento {
+public class GestorMensajes {
 	private HashMap<String, HiloServidor> clientes;
 	private ArrayList<PaqueteEnvio> paquetes;
 	
-	public Almacenamiento() {
+	public GestorMensajes() {
 		this.clientes = new HashMap<>();
 	}
 	
@@ -20,7 +20,7 @@ public class Almacenamiento {
 		}
 	}
 	
-	public void enviarMensaje(PaqueteEnvio paquete) throws IOException {
+	public synchronized void enviarMensaje(PaqueteEnvio paquete) throws IOException {
 		String nick = paquete.getNick();
 		for (String keyNick : clientes.keySet()) {
 			if (!keyNick.equals(nick)) {

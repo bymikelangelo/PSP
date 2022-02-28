@@ -10,13 +10,13 @@ import comun.PaqueteEnvio;
 
 public class HiloServidor extends Thread{
 	SSLSocket socketCliente;
-	Almacenamiento almacen;
+	GestorMensajes gestor;
 	ObjectOutputStream out;
 	ObjectInputStream in;
 	
-	public HiloServidor(SSLSocket socketCliente, Almacenamiento almacen) {
+	public HiloServidor(SSLSocket socketCliente, GestorMensajes almacen) {
 		this.socketCliente = socketCliente;
-		this.almacen = almacen;
+		this.gestor = almacen;
 	}
 	
 	public void escribirMensaje(PaqueteEnvio paquete) throws IOException {
@@ -26,6 +26,12 @@ public class HiloServidor extends Thread{
 	public PaqueteEnvio leerMensaje() throws ClassNotFoundException, IOException {
 		return (PaqueteEnvio) in.readObject();
 	}
+	
+	public void notificarMensaje(String mensaje) throws IOException {
+		PaqueteEnvio paquete = new PaqueteEnvio("Servidor", socketCliente.getInetAddress().toString(), mensaje);
+		System.out.println(mensaje);
+		gestor.enviarMensaje(paquete);
+	}
 
 	public void run() {
 		try {
@@ -34,14 +40,15 @@ public class HiloServidor extends Thread{
 			
 			PaqueteEnvio paqueteRecibido = leerMensaje();
 			
-			almacen.anyadirCliente(paqueteRecibido.getNick(), this);
+			gestor.anyadirCliente(paqueteRecibido.getNick(), this);
 			
-			System.out.println("Se ha conectado " + paqueteRecibido.getNick());
+			notificarMensaje("Entra en la sala de chat: " + paqueteRecibido.getNick()
+			+ "(" + paqueteRecibido.getIp() + ")");
 			
 			while(true) {
 				paqueteRecibido = leerMensaje();
 				System.out.println(paqueteRecibido.getMensaje());
-				almacen.enviarMensaje(paqueteRecibido);
+				gestor.enviarMensaje(paqueteRecibido);
 			}
 			
 		} catch (ClassNotFoundException e) {

@@ -69,7 +69,6 @@ public class Cliente implements Runnable{
 			}
 			
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
