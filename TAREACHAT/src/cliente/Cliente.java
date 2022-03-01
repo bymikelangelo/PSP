@@ -46,9 +46,10 @@ public class Cliente implements Runnable{
 		try {
 			out.writeObject(new PaqueteEnvio(nick, socket.getInetAddress().toString()));
 			while(true) {
-				String mensaje = Teclado.solicitarCadena("");
-				//System.out.println(mensaje);
+				String mensaje = Teclado.solicitarCadena("Mensaje: ");
+				System.out.println(mensaje);
 				out.writeObject(new PaqueteEnvio(nick, socket.getInetAddress().toString(), mensaje));
+				out.flush();
 			}
 			
 		} catch (IOException e) {

@@ -20,11 +20,15 @@ public class GestorMensajes {
 		}
 	}
 	
+	public synchronized void eliminarCliente(String nick) {
+		clientes.remove(nick);
+	}
+	
 	public synchronized void enviarMensaje(PaqueteEnvio paquete) throws IOException {
 		String nick = paquete.getNick();
 		for (String keyNick : clientes.keySet()) {
 			if (!keyNick.equals(nick)) {
-				clientes.get(keyNick).escribirMensaje(paquete);
+				clientes.get(keyNick).enviarMensaje(paquete);
 			}
 		}
 	}
