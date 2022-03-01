@@ -1,8 +1,10 @@
 package cliente;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.SocketException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
@@ -22,6 +24,7 @@ public class Cliente implements Runnable{
 	private SSLSocket socket;
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
+	private boolean conectado;
 	
 	public Cliente(String nick) throws IOException {
 		this.nick = nick;
@@ -35,26 +38,67 @@ public class Cliente implements Runnable{
 		
 		SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		socket = (SSLSocket) factory.createSocket(host, puerto);
-		
-		out = new ObjectOutputStream(socket.getOutputStream());
-		in = new ObjectInputStream(socket.getInputStream());
-		
+
 	}
+
+
+	public String getNick() {
+		return nick;
+	}
+	
+	public SSLSocket getSocket() {
+		return socket;
+	}
+
+	public ObjectOutputStream getOut() {
+		return out;
+	}
+
+	public ObjectInputStream getIn() {
+		return in;
+	}
+
+	public boolean isConectado() {
+		return conectado;
+	}
+
 	
 	@Override
 	public void run() {
+		HiloCliente hilo;
 		try {
+			out = new ObjectOutputStream(socket.getOutputStream());
+			in = new ObjectInputStream(socket.getInputStream());
+
 			out.writeObject(new PaqueteEnvio(nick, socket.getInetAddress().toString()));
-			while(true) {
-				String mensaje = Teclado.solicitarCadena("Mensaje: ");
-				System.out.println(mensaje);
-				out.writeObject(new PaqueteEnvio(nick, socket.getInetAddress().toString(), mensaje));
-				out.flush();
+			
+			hilo = new HiloCliente(this);
+			hilo.start();
+			
+			PaqueteEnvio paqueteRecibido;
+			while (true) {
+				paqueteRecibido = (PaqueteEnvio) in.readObject();
+				if (paqueteRecibido.getMensaje() != null) {
+					System.out.println(paqueteRecibido.getNick() + ": " + paqueteRecibido.getMensaje());
+				}
+			}
+
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (EOFException | SocketException e) {
+			//e.printStackTrace();
+			System.err.println("Perdida la conexion con: " + socket.getInetAddress());
+			try {
+				in.close();
+				out.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	
@@ -63,18 +107,9 @@ public class Cliente implements Runnable{
 		try {
 			Cliente cliente = new Cliente(nick);
 			new Thread(cliente).start();
-			
-			while(true) {
-				PaqueteEnvio paqueteRecibido = (PaqueteEnvio) cliente.in.readObject();
-				System.out.println(paqueteRecibido.getNick() + ": " + paqueteRecibido.getMensaje());
-			}
-			
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-			
+		}			
 	}
 
 }

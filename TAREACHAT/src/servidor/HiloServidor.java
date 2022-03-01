@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.SocketException;
 
 import javax.net.ssl.SSLSocket;
 
@@ -61,7 +62,7 @@ public class HiloServidor extends Thread{
 			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-		} catch (EOFException e) {
+		} catch (EOFException | SocketException e) {
 			//e.printStackTrace();
 			gestor.eliminarCliente(nick);
 			notificacion = "Ha salido de la sala de chat: " + nick + "(" + ip + ")";

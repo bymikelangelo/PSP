@@ -16,7 +16,6 @@ public class Servidor implements Runnable{
 	private int puerto;
 	private String host;
 	private int maximoClientes;
-	private Boolean escuchando;
 	private GestorMensajes gestor;
 	SSLServerSocket server;
 	
