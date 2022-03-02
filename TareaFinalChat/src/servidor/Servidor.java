@@ -23,6 +23,11 @@ public class Servidor implements Runnable{
 	private SSLServerSocket server;
 	private FrameServidor frame;
 	
+	public final String NICK_DUPLICADO = "nick_no_valido";
+	public final String CONEX_VERIFICADA = "conexion_verificada";
+	public final String MAX_CONEX_ALCANZADAS = "maximas_conexiones_alcanzadas";
+	
+	
 	/*
 	 * Recibe el frame por parametro. Carga las propiedades del servidor y los certificados
 	 * de seguridad SSL. Tambien crea el gestor de mensajes del Servidor
@@ -40,7 +45,7 @@ public class Servidor implements Runnable{
 		SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
 		this.server = (SSLServerSocket) factory.createServerSocket(puerto);
 		
-		this.gestor = new GestorMensajes();
+		this.gestor = new GestorMensajes(maximoClientes);
 		this.frame = frame;
 	}
 	
@@ -72,10 +77,13 @@ public class Servidor implements Runnable{
 		gestor.enviarMensaje(paquete);
 	}
 	
-	//añade un nuevo cliente a la lista del gestor. Devuelve verdadero o falso si tiene exito
-	public boolean nuevoCliente(DatosCliente cliente, HiloServidor hilo) {
-		boolean anyadido = gestor.anyadirCliente(cliente, hilo);
-		if (anyadido & frame != null) {
+	/*
+	 * añade un nuevo cliente a la lista del gestor. Devuelve el mensaje establecido que recibe
+	 * del gestor al hilo que lo llama para verificar la conexion
+	 */
+	public String nuevoCliente(DatosCliente cliente, HiloServidor hilo) {
+		String anyadido = gestor.anyadirCliente(cliente, hilo);
+		if (anyadido.equals(CONEX_VERIFICADA)) {
 			frame.mostrarClientes(gestor.recibirDatosCliente());
 		}
 		return anyadido;
@@ -106,26 +114,29 @@ public class Servidor implements Runnable{
 		return maximoClientes - gestor.numeroClientes();
 	}
 	
-	
-	@Override
-	public void run() {
-		//se inicia el servidor
-		mostrarNotificacion("Escuchando (conexiones restantes: " + conexionesRestantes() + ")..." );
-		
-		//escucha hasta que el numero de clientes maximos es alcanzado
-		try {
-			while (gestor.numeroClientes() < maximoClientes) {
+	//escucha a nuevos clientes si hay conexiones restantes
+	public void escuchando() throws IOException {
+		if (conexionesRestantes() > 0 ) {
+			mostrarNotificacion("Escuchando (conexiones restantes: " + conexionesRestantes() + ")..." );
+			while (conexionesRestantes() > 0) {
 				SSLSocket socketCliente = (SSLSocket) server.accept();
 				server.setSoTimeout(0);
 				
 				//inicia un hilo propio para cada cliente
 				HiloServidor hilo = new HiloServidor(this, socketCliente);
 				hilo.start();
-					
 			} 
-			
-			mostrarNotificacion("Máximo de conexiones alcanzado.");
-			
+			mostrarNotificacion("Máximo de conexiones alcanzado.");	
+		}
+	}
+	
+	
+	@Override
+	public void run() {
+		//se inicia el servidor
+		try {
+			//escucha hasta que el numero de clientes maximos es alcanzado
+			escuchando();
 		} catch (SocketException e) {  //salta cuando se cierra el SSLServerSocket
 			e.printStackTrace();
 			mostrarNotificacion("Conexión cerrada");

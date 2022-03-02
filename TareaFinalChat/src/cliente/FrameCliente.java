@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 import comun.PaqueteEnvio;
@@ -29,6 +30,7 @@ public class FrameCliente extends JFrame {
 	private JTextArea textArea;
 	private JTextField textField;
 	private JLabel lblSalaChat;
+	private JScrollPane scroll;
 
 	/**
 	 * Launch the application.
@@ -57,7 +59,7 @@ public class FrameCliente extends JFrame {
 	public FrameCliente(String nombre) {
 		super(nombre);
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 550, 400);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -70,28 +72,27 @@ public class FrameCliente extends JFrame {
 		textArea.setBounds(10, 42, 514, 240);
 		contentPane.add(textArea);
 		
+		scroll = new JScrollPane(textArea);
+		scroll.setBounds(10, 42, 514, 240);
+		getContentPane().add(scroll);
+		
 		JButton btnSalir = new JButton("SALIR");
-		btnSalir.setBackground(Color.ORANGE);
+		btnSalir.setBackground(Color.RED);
+		btnSalir.setForeground(Color.WHITE);
 		btnSalir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//cierra las conexiones con el cliente antes de cerrar el programa
+				/*
+				 * cierra las conexiones con el cliente antes de cerrar el programa.
+				 * El programa se cierra al finalizar el hilo del cliente
+				 */
 				try {
 					if (cliente.isConectado()) {
 						cliente.cerrarConexion();
 					}
-					//JOptionPane.showMessageDialog(null, "Cerradas todas las conexiones.");
-					btnSalir.setText("CERRAR");
-					btnSalir.setBackground(Color.RED);
-					//permite cerrar la ventana del programa
-					btnSalir.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							System.exit(0);
-						}
-					});
 				} catch (IOException e1) {
 					e1.printStackTrace();
-				}
+					JOptionPane.showMessageDialog(null, e1.getMessage());
+				} 
 			}
 		});
 		btnSalir.setBounds(10, 327, 89, 23);
@@ -112,7 +113,7 @@ public class FrameCliente extends JFrame {
 		btnEnviar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String mensaje = textField.getText();
-				if (!mensaje.equals("") || mensaje != null) {
+				if (!mensaje.equals("") && mensaje != null) {
 					try {
 						cliente.enviarMensaje(mensaje);
 						mostrarMensajePropio(mensaje);
@@ -150,6 +151,7 @@ public class FrameCliente extends JFrame {
 		textArea.append(paquete.getNick() + ": " + paquete.getMensaje() + "\n");
 	}
 	
+	//pone el nick del cliente en la ventana
 	public void ponerNombre() {
 		lblSalaChat.setText("Sala de chat (Cliente: " + cliente.getNick() + ")");
 	}

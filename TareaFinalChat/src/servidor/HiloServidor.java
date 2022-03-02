@@ -16,8 +16,12 @@ public class HiloServidor extends Thread{
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
 	private boolean conectado = false;
+	
+	//mensajes establecidos que indican si se es posible establecer la conexion.
 	public final String NICK_DUPLICADO = "nick_no_valido";
 	public final String CONEX_VERIFICADA = "conexion_verificada";
+	public final String MAX_CONEX_ALCANZADAS = "maximas_conexiones_alcanzadas";
+
 	
 	//recibe el servidor que llama al hilo y el socket del cliente que debe atender
 	public HiloServidor(Servidor servidor, SSLSocket socketCliente) {
@@ -68,34 +72,42 @@ public class HiloServidor extends Thread{
 			 */
 			PaqueteEnvio paqueteRecibido;
 			conectado = false;
+			String respuestaGestor = "";
 			do {
 				//recibe paquete con el nick
 				paqueteRecibido = recibirMensaje();
 				
 				//se prueba la insercion del nick. Si existe envia mensaje de no validacion.
 				cliente = new DatosCliente(paqueteRecibido.getNick(), paqueteRecibido.getIp());
-				if (servidor.nuevoCliente(cliente, this)) {
+				respuestaGestor = servidor.nuevoCliente(cliente, this);
+				if (respuestaGestor.equals(CONEX_VERIFICADA)) {
 					//insercion correcta, se envia mensaje de verificacion
-					enviarMensaje(new PaqueteEnvio("Servidor", servidor.getServer().getInetAddress().toString(), CONEX_VERIFICADA));
+					enviarMensaje(new PaqueteEnvio("Servidor", servidor.getServer().getInetAddress().toString(), respuestaGestor));
 					conectado = true;
+					
+					notificar("Entra en la sala de chat: " + cliente.toString() + " (conexiones restantes: " + servidor.conexionesRestantes() + ")...");
+					
+					//bucle encargado de esperar a recibir mensajes del cliente conectado
+					while(true) {
+						paqueteRecibido = recibirMensaje();
+						if (paqueteRecibido.getMensaje() != null) {
+							servidor.mostrarMensaje(paqueteRecibido);
+							servidor.enviarMensaje(paqueteRecibido);
+						}
+					}
 				}
-				else {
+				else if (respuestaGestor.equals(NICK_DUPLICADO)){
 					//insercion fallida, se envia mensaje con error de nick duplicado
-					enviarMensaje(new PaqueteEnvio("Servidor", servidor.getServer().getInetAddress().toString(), NICK_DUPLICADO));
+					enviarMensaje(new PaqueteEnvio("Servidor", servidor.getServer().getInetAddress().toString(), respuestaGestor));
 					conectado = false;
 				}
-			} while (conectado == false);
-			
-
-			notificar("Entra en la sala de chat: " + cliente.toString() + " (conexiones restantes: " + servidor.conexionesRestantes() + ")...");
-			//bucle encargado de esperar a recibir mensajes del cliente conectado
-			while(true) {
-				paqueteRecibido = recibirMensaje();
-				if (paqueteRecibido.getMensaje() != null) {
-					servidor.mostrarMensaje(paqueteRecibido);
-					servidor.enviarMensaje(paqueteRecibido);
+				else {
+					enviarMensaje(new PaqueteEnvio("Servidor", servidor.getServer().getInetAddress().toString(), respuestaGestor));
+					conectado = false;
 				}
-			}
+			} while (conectado = false & respuestaGestor.equals(NICK_DUPLICADO));
+			
+			System.out.println("hilo final");
 
 		} catch (ClassNotFoundException e) {  //salta si el tipo de objeto enviado no corresponde
 			e.printStackTrace();
@@ -116,14 +128,16 @@ public class HiloServidor extends Thread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (conectado) {
-				/*
-				 * eliminacion del cliente de la lista de cliente si llegó a entablar conexion y
-				 * fué añadido a la lista de clientes
-				 */
-				servidor.eliminarCliente(cliente);
-			}
 			try {
+				if (conectado) {
+					/*
+					 * eliminacion del cliente de la lista de cliente si llegó a entablar conexion y
+					 * fue añadido a la lista de clientes. 
+					 */
+					servidor.eliminarCliente(cliente);
+					servidor.escuchando();
+				}
+				
 				//cierre de los canales de comunicacion al finalizar el hilo de ejecucion
 				cerrarConexion();
 			} catch (IOException e) {

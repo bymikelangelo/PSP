@@ -27,8 +27,10 @@ public class Cliente implements Runnable{
 	private ObjectInputStream in;
 	private boolean conectado;
 	private FrameCliente frame;
+	
 	public final String NICK_DUPLICADO = "nick_no_valido";
 	public final String CONEX_VERIFICADA = "conexion_verificada";
+	public final String MAX_CONEX_ALCANZADAS = "maximas_conexiones_alcanzadas";
 	
 	/*
 	 * Recibe el frame por parametro. Carga las propiedades del cliente y los certificados
@@ -107,42 +109,55 @@ public class Cliente implements Runnable{
 			 * verifica la conexion
 			 */
 			PaqueteEnvio paqueteRecibido;
+			String respuestaHilo = "";
 			conectado = false;
 			do {
+				nick = "";
 				do {
 					nick = frame.introducirNick();
-				} while (nick == null || nick.equals(""));
+					
+					if (nick == null) {
+						frame.mostrarPanelMensaje("No se ha podido establecer conexión.");
+						System.exit(0);
+						break;
+					}
+				} while (nick.equals(""));
 				
 				//envia el paquete con el nick recibido del frame
 				out.writeObject(new PaqueteEnvio(nick, socket.getInetAddress().toString()));
 				
 				//obtiene respuesta del servidor
 				paqueteRecibido = (PaqueteEnvio) in.readObject();
-				String respuesta = paqueteRecibido.getMensaje();
-				if (respuesta.equals(NICK_DUPLICADO)) {
+				respuestaHilo = paqueteRecibido.getMensaje();
+				if (respuestaHilo.equals(NICK_DUPLICADO)) {
 					//conexion no verificada por el servidor
 					conectado = false;		
 					frame.mostrarPanelMensaje("El nick introducido ya está en uso.");
 				}
-				else if (respuesta.equals(CONEX_VERIFICADA)) {
+				else if (respuestaHilo.equals(CONEX_VERIFICADA)) {
 					//conexion verificada por el servidor
 					conectado = true;
 					frame.ponerNombre();
+					
+					/*
+					 * bucle que mantiene al cliente a la escucha de recibir mensajes de
+					 * otros clientes
+					 */
+					while (true) {
+						paqueteRecibido = (PaqueteEnvio) in.readObject();
+						mostrarMensaje(paqueteRecibido);
+					}
+					
 				}
-			} while (conectado == false);
+				else {
+					conectado = false;
+					frame.mostrarPanelMensaje("El anfitrión no acepta más conexiones.");
+					
+				}
+			} while (conectado == false && respuestaHilo.equals(NICK_DUPLICADO));
 
-//			hilo = new HiloCliente(this);
-//			hilo.start();
+			System.out.println("cliente final");
 			
-			/*
-			 * bucle que mantiene al cliente a la escucha de recibir mensajes de
-			 * otros clientes
-			 */
-			while (true) {
-				paqueteRecibido = (PaqueteEnvio) in.readObject();
-				mostrarMensaje(paqueteRecibido);
-			}
-
 		} catch (ClassNotFoundException e) {  //salta si el tipo de objeto enviado no corresponde
 			e.printStackTrace();
 		} catch (EOFException | SocketException e) {
@@ -161,6 +176,7 @@ public class Cliente implements Runnable{
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			System.exit(0);
 		}
 
 	}

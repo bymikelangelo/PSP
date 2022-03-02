@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JTextArea;
 import javax.swing.DefaultListModel;
@@ -24,6 +25,7 @@ public class FrameServidor extends JFrame {
 	private Servidor servidor;
 	private JTextArea textArea;
 	private JList<String> listadoClientes;
+	private JScrollPane scroll;
 
 	/**
 	 * Launch the application.
@@ -63,26 +65,25 @@ public class FrameServidor extends JFrame {
 		textArea.setEditable(false);
 		textArea.setBounds(10, 42, 454, 274);
 		contentPane.add(textArea);
+
+		scroll = new JScrollPane(textArea);
+		scroll.setBounds(10, 42, 454, 274);
+		add(scroll);
 		
 		JButton btnSalir = new JButton("SALIR");
-		btnSalir.setBackground(Color.ORANGE);
+		btnSalir.setBackground(Color.RED);
+		btnSalir.setForeground(Color.WHITE);
 		btnSalir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//cierra todas las conexiones antes de cerrar el programa
 				try {
 					servidor.cerrarServer();
 					JOptionPane.showMessageDialog(null, "Cerradas todas las conexiones.");
-					btnSalir.setText("CERRAR");
-					btnSalir.setBackground(Color.RED);
-					//permite cerrar la ventana del programa
-					btnSalir.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							System.exit(0);
-						}
-					});
 				} catch (IOException e1) {
 					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, e1.getMessage());
+				} finally {
+					System.exit(0);
 				}
 			}
 		});
